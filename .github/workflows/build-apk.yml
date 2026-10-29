@@ -18,13 +18,11 @@ jobs:
           flutter-version: '3.29.3'
           channel: 'stable'
           
-      - name: PATCH QName bug - delete broken import
+      - name: Fix QName import bug
         run: |
           FILE=$(find /opt/hostedtoolcache/flutter -name flutter.groovy | head -n 1)
-          echo "Patching $FILE"
-          sed -i '/QName/d' "$FILE"
-          echo "=== Patched file ==="
-          head -15 "$FILE"
+          sed -i 's/import groovy.xml.QName/import groovy.namespace.QName/' "$FILE"
+          grep -n "QName" "$FILE" | head -20
           
       - run: flutter pub get
       - run: flutter build apk --release
