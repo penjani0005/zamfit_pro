@@ -18,14 +18,31 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
-      - name: Fix AGP 9.1 -> 8.2.2 (keep flutter include)
+      - name: Fix AGP + Kotlin syntax to work with Flutter 3.24.5
         run: |
-          echo "BEFORE:"
-          cat android/settings.gradle.kts
-          sed -i 's/9\.1\.0/8.2.2/g' android/settings.gradle.kts
-          sed -i 's/2\.4\.0/1.9.22/g' android/settings.gradle.kts
+          sed -i 's/9\.1\.0/8.3.2/g' android/settings.gradle.kts
+          sed -i 's/2\.4\.0/2.0.0/g' android/settings.gradle.kts
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
-          echo "AFTER:"
+          
+          echo "Fixing app/build.gradle.kts kotlin syntax..."
+          # Replace new kotlin { compilerOptions } with old kotlinOptions
+          python3 << 'PY'
+          import pathlib
+          p = pathlib.Path("android/app/build.gradle.kts")
+          text = p.read_text()
+          # Replace the new block
+          text = text.replace(
+              "kotlin {\n    compilerOptions {\n        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17\n    }\n}",
+              'kotlinOptions {\n    jvmTarget = "17"\n}'
+          )
+          # Fallback - handle different formatting
+          text = text.replace("kotlin {", "kotlinOptions {").replace("compilerOptions {", "").replace("jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17", 'jvmTarget = "17"')
+          # Clean double braces
+          text = text.replace("kotlinOptions {\n    \n", "kotlinOptions {\n")
+          p.write_text(text)
+          print(text[2000:3000])
+          PY
+          
           cat android/settings.gradle.kts
           cat android/gradle/wrapper/gradle-wrapper.properties
 
