@@ -18,8 +18,15 @@ jobs:
           flutter-version: '3.29.3'
           channel: 'stable'
           
+      - name: PATCH QName bug - delete broken import
+        run: |
+          FILE=$(find /opt/hostedtoolcache/flutter -name flutter.groovy | head -n 1)
+          echo "Patching $FILE"
+          sed -i '/QName/d' "$FILE"
+          echo "=== Patched file ==="
+          head -15 "$FILE"
+          
       - run: flutter pub get
-      - run: flutter pub upgrade
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
