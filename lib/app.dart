@@ -10,9 +10,7 @@ class ZamfitApp extends StatelessWidget {
     return MaterialApp(
       title: 'ZamFit Pro',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme: AppTheme.light,
       home: const HomePage(),
     );
   }

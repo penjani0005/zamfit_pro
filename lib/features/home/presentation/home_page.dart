@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/zamfit_logo.dart';
-import '../../workouts/presentation/pages/workout_list_page.dart';
-import '../../progress/presentation/progress_page.dart';
+import '../../workout/presentation/pages/today_workout_page.dart';
+import '../../progress/presentation/pages/progress_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -17,9 +17,9 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 20),
           const Align(alignment: Alignment.centerLeft, child: Text('Good morning, Alex\nReady to hit your goals today?', style: TextStyle(color: Colors.white70))),
           const SizedBox(height: 24),
-          _buildCard(context, 'Workouts', '3 of 5 completed • 28 min', Icons.fitness_center, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkoutListPage()))),
+          _buildCard(context, 'Workouts', '3 of 5 completed \u2022 28 min', Icons.fitness_center, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TodayWorkoutPage()))),
           const SizedBox(height: 16),
-          _buildCard(context, 'Progress', 'Streak: 12 days • +14% this week', Icons.bar_chart, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgressPage()))),
+          _buildCard(context, 'Progress', 'Streak: 12 days \u2022 +14% this week', Icons.bar_chart, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgressPage()))),
           const Spacer(),
           Container(padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20), decoration: BoxDecoration(color: AppColors.zambiaGreenLight, borderRadius: BorderRadius.circular(40), border: Border.all(color: AppColors.gold.withOpacity(0.3))), child: const Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [Icon(Icons.home, color: AppColors.gold), Icon(Icons.explore, color: Colors.white38), Icon(Icons.history, color: Colors.white38), Icon(Icons.person, color: Colors.white38)]))
         ]))),
