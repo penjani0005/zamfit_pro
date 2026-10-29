@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/zamfit_logo.dart';
-import '../../workout/presentation/pages/today_workout_page.dart';
+import '../../workout/presentation/pages/workout_list_page.dart';
 import '../../progress/presentation/pages/progress_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 20),
           const Align(alignment: Alignment.centerLeft, child: Text('Good morning, Alex\nReady to hit your goals today?', style: TextStyle(color: Colors.white70))),
           const SizedBox(height: 24),
-          _buildCard(context, 'Workouts', '3 of 5 completed \u2022 28 min', Icons.fitness_center, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TodayWorkoutPage()))),
+          _buildCard(context, 'Workouts', '3 of 5 completed \u2022 28 min', Icons.fitness_center, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkoutListPage()))),
           const SizedBox(height: 16),
           _buildCard(context, 'Progress', 'Streak: 12 days \u2022 +14% this week', Icons.bar_chart, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgressPage()))),
           const Spacer(),
