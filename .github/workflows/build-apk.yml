@@ -18,36 +18,42 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
-      - name: Fix AGP + Kotlin syntax to work with Flutter 3.24.5
+      - name: Fix AGP + move kotlinOptions inside android
         run: |
           sed -i 's/9\.1\.0/8.3.2/g' android/settings.gradle.kts
           sed -i 's/2\.4\.0/2.0.0/g' android/settings.gradle.kts
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
           
-          echo "Fixing app/build.gradle.kts kotlin syntax..."
-          # Replace new kotlin { compilerOptions } with old kotlinOptions
           python3 << 'PY'
-          import pathlib
+          import pathlib, re
           p = pathlib.Path("android/app/build.gradle.kts")
-          text = p.read_text()
-          # Replace the new block
-          text = text.replace(
-              "kotlin {\n    compilerOptions {\n        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17\n    }\n}",
-              'kotlinOptions {\n    jvmTarget = "17"\n}'
-          )
-          # Fallback - handle different formatting
-          text = text.replace("kotlin {", "kotlinOptions {").replace("compilerOptions {", "").replace("jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17", 'jvmTarget = "17"')
-          # Clean double braces
-          text = text.replace("kotlinOptions {\n    \n", "kotlinOptions {\n")
-          p.write_text(text)
-          print(text[2000:3000])
-          PY
+          t = p.read_text()
+          print("BEFORE:\n", t[:4000])
+          # Remove any standalone kotlin { ... } or kotlinOptions { ... } blocks outside android
+          t = re.sub(r'\nkotlin\s*\{\s*\n.*?jvmTarget.*?\n.*?\n\}', '', t, flags=re.DOTALL)
+          t = re.sub(r'\nkotlinOptions\s*\{\s*\n.*?jvmTarget.*?\n.*?\n\}', '', t, flags=re.DOTALL)
           
-          cat android/settings.gradle.kts
-          cat android/gradle/wrapper/gradle-wrapper.properties
+          # Ensure kotlinOptions inside android block, after compileOptions
+          if "kotlinOptions" not in t:
+              t = t.replace(
+                  "compileOptions {",
+                  "compileOptions {\n        isCoreLibraryDesugaringEnabled = true\n    }\n\n    kotlinOptions {\n        jvmTarget = \"17\"\n    }\n\n    compileOptions {"
+              )
+              # If above didn't match due to different syntax, inject after first compileOptions block
+              if t.count("kotlinOptions") == 0:
+                  # Find android block and inject
+                  t = re.sub(r'(compileOptions\s*\{[^}]+\}\s*\n)', r'\1\n    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n', t, count=1, flags=re.DOTALL)
+          
+          # Make sure compileOptions uses Java 17
+          if "JavaVersion.VERSION_17" not in t:
+              t = t.replace("VERSION_1_8", "VERSION_17").replace("VERSION_11", "VERSION_17")
+          
+          p.write_text(t)
+          print("\nAFTER:\n", t[:4000])
+          PY
 
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --verbose
       - uses: actions/upload-artifact@v4
         with:
           name: zamfit-pro-RELEASE-2026
