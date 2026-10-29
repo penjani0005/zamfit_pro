@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_colors.dart';
+
 class TodayWorkoutPage extends StatelessWidget {
   const TodayWorkoutPage({super.key});
   @override
