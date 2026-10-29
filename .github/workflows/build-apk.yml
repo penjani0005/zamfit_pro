@@ -17,21 +17,23 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
-          
-      - name: FULL Fix Groovy 4 bugs (QName + XmlParser)
+
+      - name: Force Gradle 8.5 compatible with Flutter
+        run: |
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
+          cat android/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Fix Groovy 4 bugs (QName + XmlParser)
         run: |
           FILE=$(find /opt/hostedtoolcache/flutter -name flutter.groovy | head -n 1)
-          echo "Before fix:"
-          head -20 "$FILE"
           sed -i 's/import groovy.xml.QName/import groovy.namespace.QName/' "$FILE"
-          sed -i 's/import groovy.util.XmlParser/import groovy.xml.XmlParser/' "$FILE"
-          # Add XmlParser import if missing
-          grep -q "XmlParser" "$FILE" || sed -i '1i import groovy.xml.XmlParser' "$FILE"
-          echo "After fix:"
-          head -20 "$FILE"
+          sed -i 's/new XmlParser()/new groovy.xml.XmlParser()/g' "$FILE"
+          sed -i 's/new XmlSlurper()/new groovy.xml.XmlSlurper()/g' "$FILE"
+          echo "Fixed file:"
+          grep -n "QName\|XmlParser" "$FILE" | head -20
           
       - run: flutter pub get
-      - run: flutter build apk --release --verbose
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: zamfit-pro-RELEASE-2026
