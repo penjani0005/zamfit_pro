@@ -1,4 +1,4 @@
-name: zamfit_pro
+﻿name: zamfit_pro
 description: ZAMFIT PRO - Zambia Fitness
 publish_to: 'none'
 version: 1.0.0+1
@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   audioplayers: ^6.0.0
-  vibration: ^1.8.4
+  vibration: ^3.1.3
 
 dev_dependencies:
   flutter_test:
