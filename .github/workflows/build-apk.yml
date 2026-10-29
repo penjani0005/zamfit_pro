@@ -18,20 +18,25 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
-      - name: Force Gradle 8.5 compatible with Flutter
+      - name: Downgrade AGP to 8.2.2 compatible with Flutter
         run: |
+          cat android/settings.gradle.kts
+          sed -i 's/com.android.application.*9.1.0/com.android.application" version "8.2.2" apply false/' android/settings.gradle.kts || true
+          sed -i 's/8.2.2" apply false/8.2.2" apply false/' android/settings.gradle.kts
+          # Force replace with known good versions
+          echo 'pluginManagement {
+              includeBuild("../flutter/packages/flutter_tools/gradle")
+              repositories { google(); mavenCentral(); gradlePluginPortal() }
+          }
+          plugins {
+              id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+              id("com.android.application") version "8.2.2" apply false
+              id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+          }
+          include(":app")' > android/settings.gradle.kts
+          cat android/settings.gradle.kts
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
-          cat android/gradle/wrapper/gradle-wrapper.properties
 
-      - name: Fix Groovy 4 bugs (QName + XmlParser)
-        run: |
-          FILE=$(find /opt/hostedtoolcache/flutter -name flutter.groovy | head -n 1)
-          sed -i 's/import groovy.xml.QName/import groovy.namespace.QName/' "$FILE"
-          sed -i 's/new XmlParser()/new groovy.xml.XmlParser()/g' "$FILE"
-          sed -i 's/new XmlSlurper()/new groovy.xml.XmlSlurper()/g' "$FILE"
-          echo "Fixed file:"
-          grep -n "QName\|XmlParser" "$FILE" | head -20
-          
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
