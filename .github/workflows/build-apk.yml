@@ -1,4 +1,4 @@
-﻿name: Build ZamFit Pro APK
+name: Build ZamFit Pro APK
 on:
   push:
     branches: [ main ]
